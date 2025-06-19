@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ассоциации</title>
+    <title>Случайные слова</title>
     <style>
         * {
             margin: 0;
@@ -118,7 +118,7 @@
             }
             
             #randomWord {
-                font-size: clamp(2rem, 8vw, 4rem);
+                font-size: clamp(2.5rem, 10vw, 5rem);
             }
             
             button {
@@ -130,10 +130,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Ассоциации</h1>
+        <h1>Случайные слова</h1>
         
         <div class="word-display">
-            <div id="randomWord"> </div>
+            <div id="randomWord">Нажмите кнопку для получения слова</div>
         </div>
         
         <div class="btn-container">
@@ -142,10 +142,15 @@
             </button>
         </div>
     </div>
+    
+    <div class="footer">
+        Генератор случайных слов
+    </div>
 
     <script>
         let words = [];
 
+        // Загружаем слова из файла при загрузке страницы
         async function loadWords() {
             try {
                 const response = await fetch('words.txt');
@@ -158,12 +163,14 @@
             }
         }
 
+        // Качественный рандомайзер с использованием crypto API
         function getSecureRandom(max) {
             const array = new Uint32Array(1);
             crypto.getRandomValues(array);
             return array[0] % max;
         }
 
+        // Получение случайного слова
         function getRandomWord() {
             if (words.length === 0) {
                 showWord('Слова не загружены');
@@ -175,6 +182,7 @@
             showWord(word);
         }
 
+        // Показ слова с анимацией
         function showWord(word) {
             const wordElement = document.getElementById('randomWord');
             wordElement.classList.remove('show');
@@ -185,11 +193,13 @@
             }, 200);
         }
 
+        // Инициализация при загрузке страницы
         window.addEventListener('DOMContentLoaded', () => {
             loadWords();
             document.getElementById('randomWord').classList.add('show');
         });
 
+        // Добавляем поддержку клавиш
         document.addEventListener('keydown', (event) => {
             if (event.code === 'Space' || event.code === 'Enter') {
                 event.preventDefault();
