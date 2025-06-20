@@ -59,7 +59,7 @@
         }
         
         .reset-btn {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+            background: linear-gradient(135deg, #6b7280, #4b5563);
             color: white;
             border: none;
             padding: 8px 15px;
@@ -71,7 +71,7 @@
         }
         
         .reset-btn:hover {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            background: linear-gradient(135deg, #4b5563, #374151);
             transform: translateY(-1px);
         }
         
@@ -175,6 +175,70 @@
             opacity: 0.7;
         }
         
+        .stats-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .stats-modal.show {
+            display: flex;
+        }
+        
+        .stats-content {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d30);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .stats-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #4ade80;
+        }
+        
+        .stats-line {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .stats-goal {
+            color: #4ade80;
+            font-weight: bold;
+        }
+        
+        .close-stats-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .close-stats-btn:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            transform: translateY(-1px);
+        }
+        
         @media (max-width: 768px) {
             .stats-container {
                 flex-direction: column;
@@ -246,6 +310,16 @@
     <div class="footer">
         Генератор случайных слов
     </div>
+
+         <div class="stats-modal" id="statsModal">
+         <div class="stats-content">
+             <h2 class="stats-title">Статистика сессии</h2>
+             <div id="sessionStatsContent">
+                 <!-- Статистика будет добавлена через JavaScript -->
+             </div>
+             <button class="close-stats-btn" onclick="closeStatsModal()">Закрыть</button>
+         </div>
+     </div>
 
     <script>
         let words = [];
@@ -347,6 +421,11 @@
 
         // Сброс сессии
         function resetSession() {
+            // Показываем статистику только если сессия была запущена
+            if (isSessionStarted && startTime && wordCount > 0) {
+                showSessionStats();
+            }
+            
             // Останавливаем таймер
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -366,6 +445,29 @@
             document.getElementById('randomWord').textContent = 'Нажмите кнопку для получения первого слова';
         }
 
+        // Показ статистики сессии
+        function showSessionStats() {
+            const now = new Date();
+            const elapsed = Math.floor((now - startTime) / 1000);
+            
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            const avgSecondsPerWord = elapsed / wordCount;
+            const avgTimeStr = avgSecondsPerWord.toFixed(1);
+            
+            const statsContent = document.getElementById('sessionStatsContent');
+            statsContent.innerHTML = `
+                <p class="stats-line">${wordCount} слов за ${timeStr}</p>
+                <p class="stats-line">${avgTimeStr} секунд на 1 слово</p>
+                <p class="stats-line stats-goal">Цель: 1 секунда на 1 слово</p>
+            `;
+            
+            // Показываем модальное окно
+            document.getElementById('statsModal').classList.add('show');
+        }
+
         // Инициализация при загрузке страницы
         window.addEventListener('DOMContentLoaded', () => {
             loadWords();
@@ -377,6 +479,18 @@
             if (event.code === 'Space' || event.code === 'Enter') {
                 event.preventDefault();
                 handleWordAction();
+            }
+        });
+
+        // Закрытие модального окна статистики
+        function closeStatsModal() {
+            document.getElementById('statsModal').classList.remove('show');
+        }
+
+        // Закрытие модального окна при клике на фон
+        document.getElementById('statsModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeStatsModal();
             }
         });
     </script>
